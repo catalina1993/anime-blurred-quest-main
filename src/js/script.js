@@ -75,12 +75,12 @@ const characters = [
     extraHint: "Blonde twin buns and a sailor outfit.",
   },
 ];
-//Generate Random number to select a character
-let currentCharacterIndex = Math.floor(Math.random()*characters.length);
-//Set initial score and attempts to 0
+
+
+let availableIndexes = [...Array(characters.length).keys()]; // Array of unique indexes
+let currentCharacterIndex = getRandomIndex();
 let score = 0;
 let attempts = 0;
-let character = characters[currentCharacterIndex]; 
 
 // DOM Elements
 const characterImage = document.getElementById("blurred-image");
@@ -92,24 +92,40 @@ const submitGuessButton = document.getElementById("submit-button");
 const getExtraHintBtn = document.getElementById("hint-button");
 const nextCharacterButton = document.getElementById("next-button");
 const scoreElement = document.getElementById("score");
+const attemptsElement = document.getElementById("attempts");
 
-// Initialize the game
+// Load the first character on page load
+loadCharacter();
+
+function getRandomIndex() {
+  if (availableIndexes.length === 0) {
+    alert("All characters have been shown! Restarting...");
+    availableIndexes = [...Array(characters.length).keys()]; // Reset available indexes
+  }
+
+  const randomIndex = Math.floor(Math.random() * availableIndexes.length);
+  return availableIndexes.splice(randomIndex, 1)[0]; // Remove and return random unique index
+}
+
 function loadCharacter() {
-  console.log(scoreElement.textContent);
-  //Generate Random Number to
-  //Commenting to try use as global variable
-  character = characters[currentCharacterIndex];
-  characterImage.src = character.image;
-  characterImage.classList.add('blurred')
-  console.log(characterImage.src);
+  const character = characters[currentCharacterIndex];
+
+  // Hide image before loading a new one
+  characterImage.classList.add("hidden");
+
+  let newImage = new Image();
+  newImage.src = character.image;
+  newImage.onload = () => {
+    characterImage.src = newImage.src;
+    characterImage.classList.remove("hidden");
+    characterImage.classList.add("blurred");
+  };
+
   hint.textContent = `Hint: ${character.hint}`;
-  extraHint.textContent = `Extra Hint: ${character.extraHint}`
-  extraHint.classList.add('hidden');
+  extraHint.textContent = `Extra Hint: ${character.extraHint}`;
+  extraHint.classList.add("hidden");
   feedback.textContent = "";
   guessInput.value = "";
-  currentCharacterIndex = Math.floor(Math.random()*characters.length);
-  characterImage.classList.add("blurred");
-
 }
 
 // Increase the score
@@ -117,83 +133,59 @@ function increaseScore() {
   score++;
   scoreElement.textContent = score;
 }
-function decreaseScore(){
+
+// Decrease score for extra hints
+function decreaseScore() {
   score--;
   scoreElement.textContent = score;
-} 
-//increase attempts
-function increaseAttempts(){
+}
+
+// Increase attempts and check game over
+function increaseAttempts() {
   attempts++;
-  document.getElementById('attempts').textContent = attempts;
-  gameCheck();
-}
-function resetAttempts(){
-attempts = 0;
-document.getElementById('attempts').textContent = attempts;
-}
-function resetScore(){
-  score = 0;
-  scoreElement.textContent = score;
-  }
-function gameCheck(){
-  if(attempts === 3){
-    alert("You have reached 3 attempts. Game Over.");
-    resetAttempts();
-    resetScore();
-    loadCharacter();
+  attemptsElement.textContent = attempts;
+  if (attempts === 3) {
+    alert("Game Over! Restarting...");
+    resetGame();
   }
 }
 
+// Reset attempts and score
+function resetGame() {
+  attempts = 0;
+  score = 0;
+  availableIndexes = [...Array(characters.length).keys()]; // Reset available indexes
+  attemptsElement.textContent = attempts;
+  scoreElement.textContent = score;
+  currentCharacterIndex = getRandomIndex();
+  loadCharacter();
+}
 
 // Check the user's guess
 submitGuessButton.addEventListener("click", () => {
-  const guess = guessInput.value.trim();
-//  character = characters[currentCharacterIndex]; 
-  console.log('Submit Guess Button Pressed.');
-    if(guess === ""){
-      feedback.textContent = "Your Answer is Empty. Try again.";
-      console.log('EMPTY STRING BLOCK EXECUTED');
-    }
-    else if((guess.toLowerCase()) === (character.name.toLowerCase())) {
+  const guess = guessInput.value.trim().toLowerCase();
+  const character = characters[currentCharacterIndex];
+
+  if (guess === "") {
+    feedback.textContent = "Your answer is empty. Try again.";
+  } else if (guess === character.name.toLowerCase()) {
     feedback.textContent = "Correct! Well done!";
     increaseScore();
-    console.log('CORRECT GUESS BLOCK EXECUTED');
-    // increaseAttempts(); 
-    characterImage.classList.remove("blurred");
-  } else{
+    characterImage.classList.remove("blurred"); // Reveal the image
+  } else {
+    feedback.textContent = "Incorrect! Try again.";
     increaseAttempts();
-    feedback.textContent = 'Incorrect! Try again';
-    console.log('INCORRECT GUESS BLOCK EXECUTED');
-   
   }
 });
 
 // Show an extra hint
 getExtraHintBtn.addEventListener("click", () => {
-  extraHint.classList.remove("hidden")
+  extraHint.classList.remove("hidden");
   decreaseScore();
 });
 
-// Load the next character
+// Load the next character randomly without repeats
 nextCharacterButton.addEventListener("click", () => {
-  currentCharacterIndex = Math.floor(Math.random()*characters.length);
+  currentCharacterIndex = getRandomIndex();
   loadCharacter();
 });
-
-
-// Add this to the correct guess section
-// submitGuessButton.addEventListener("click", () => {
-//   const guess = guessInput.value.trim().toLowerCase();
-//   const character = characters[currentCharacterIndex].name.toLowerCase();
-
-//   if (guess === character) {
-//     feedback.textContent = "Correct!";
-//     updateScore(); 
-
-//   } else {
-//     feedback.textContent = "Incorrect! Try again.";
-//   }
-// });
-
-// Load the first character on page load
-loadCharacter();
