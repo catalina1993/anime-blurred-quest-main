@@ -1,4 +1,4 @@
-# Anime Blurred Quest 🎌✨
+# Anime Blurred Quest
 
 ## Description
 Anime Blurred Quest is a fun guessing game where players try to identify famous anime characters from blurred images. Hints are available to assist, but using them will cost points. Test your anime knowledge and see how many characters you can guess correctly!
@@ -24,7 +24,7 @@ Anime Blurred Quest is a fun guessing game where players try to identify famous 
 6. If you guess incorrectly, your **attempts increase**—3 wrong attempts and it's game over!
 7. Click **Next Character** to continue playing.
 
-## Challenges Faced 🚧
+## Challenges Faced
 1. **Image Blurring and Reveal Effect**
 One of the trickiest parts was dynamically blurring and revealing the images. The CSS `filter: blur()` property needed to be smoothly transitioned in JavaScript when the user guessed correctly. I had to tweak the **transition timing** to avoid a sudden, jarring effect.
 
